@@ -12,7 +12,7 @@ class Order(object):
     up all the logic for actually placing the order, after we've
     determined what we want from the Menu. 
     """
-    def __init__(self, store, customer, country="ca"):
+    def __init__(self, store, customer, country=COUNTRY_USA):
         self.store = store
         self.menu = Menu.from_store(store_id=store.id, country=country)
         self.customer = customer
@@ -36,7 +36,7 @@ class Order(object):
             }
 
     @staticmethod
-    def begin_customer_order(customer, store, country="CA"):
+    def begin_customer_order(customer, store, country=COUNTRY_USA):
         return Order(store, customer, country=country)
 
     def __repr__(self):

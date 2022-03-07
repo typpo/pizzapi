@@ -1,6 +1,6 @@
 from .store import Store
 from .utils import request_json
-from .urls import Urls, COUNTRY_USA, COUNTRY_CANADA
+from .urls import Urls, COUNTRY_USA
 
 class Address(object):
     """Create an address, for finding stores and placing orders.
@@ -18,7 +18,7 @@ class Address(object):
         country (String): Country
     """
 
-    def __init__(self, street, city, region='', zip='', country=COUNTRY_CANADA, *args):
+    def __init__(self, street, city, region='', zip='', country=COUNTRY_USA, *args):
         self.street = street.strip()
         self.city = city.strip()
         self.region = region.strip()

@@ -1,5 +1,5 @@
 from .menu import Menu
-from .urls import Urls, COUNTRY_CANADA
+from .urls import Urls, COUNTRY_USA
 from .utils import request_json
 
 
@@ -10,7 +10,7 @@ class Store(object):
     You can use this to find store information about stores near an
     address, or to find the closest store to an address. 
     """
-    def __init__(self, data={}, country=COUNTRY_CANADA):
+    def __init__(self, data={}, country=COUNTRY_USA):
         self.id = str(data.get('StoreID', -1))
         self.country = country
         self.urls = Urls(country)
