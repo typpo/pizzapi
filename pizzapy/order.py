@@ -68,6 +68,14 @@ class Order(object):
         codes = [x['Code'] for x in self.data['Coupons']]
         return self.data['Coupons'].pop(codes.index(code))
 
+    def changeToCarryout(self):
+        self.data['ServiceMethod'] = 'Carryout'
+        return
+
+    def changeToDelivery(self):
+        self.data['ServiceMethod'] = 'Delivery'
+        return
+
     def _send(self, url, merge):
         self.data.update(
             StoreID=self.store.id,

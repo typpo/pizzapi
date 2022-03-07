@@ -1,5 +1,7 @@
 COUNTRY_USA = 'us'
 COUNTRY_CANADA = 'ca'
+DOMAIN_BASE_US = 'https://order.dominos.com/'
+DOMAIN_BASE_CA = 'https://order.dominos.ca/'
 
 class Urls(object):
     """URLs for doing different things to the API.
