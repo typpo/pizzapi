@@ -3,12 +3,11 @@ from pizzapy import Customer, StoreLocator, Order, ConsoleInput
 
 def searchMenu(menu):
     print("You are now searching the menu...")
-
-    item = input("Type an item to look for: ").strip().lower
+    item = input("Type an item to look for: ").strip().lower()
 
     if len(item) > 0:
-        item = item[0].upper + item[1:]
-        print(f"Results for: {item}")
+        item = item[0].upper() + item[1:]
+        print(f"Results for: {item}\n")
         menu.search(Name=item)
         print()
     else:
