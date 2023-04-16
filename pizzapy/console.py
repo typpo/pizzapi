@@ -1,14 +1,15 @@
-# fork from https://github.com/Magicjarvis/pizzapi
-
-from pizzapy import Customer, StoreLocator, Order, CreditCard
+from typing import Callable, List
 from os import walk
 from pathlib import Path
+
+from .customer import Customer
+from .payment import CreditCard
 
 class ConsoleInput:
     """
     Used to get console input from users.
     """
-    country = "US"
+    country: str = "US"
 
     @staticmethod
     def get_new_customer() -> Customer:
@@ -19,7 +20,7 @@ class ConsoleInput:
         :return: Customer
         """
         print("-- PERSONAL INFORMATION --")
-        print("To start an order you must provide the following details.\n")
+        print("To start an order you must provide the following details.")
         print("- COUNTRY -")
         is_canada = input("If you are ordering from Canada please type \"YES\" now: ")
         if is_canada.strip().upper() in ["YES","Y", "YA"]:
@@ -47,7 +48,7 @@ class ConsoleInput:
         return customer
 
     @staticmethod
-    def get_customer_files(path= str(Path(__file__).resolve().parents[1]) + "/customers"):
+    def get_customer_files(path: str = str(Path(__file__).resolve().parents[1]) + "/customers") -> List[str]:
         f = []
         for (dirpath, dirnames, filenames) in walk(path):
             for file in filenames:
@@ -58,19 +59,19 @@ class ConsoleInput:
         return f
 
     @staticmethod
-    def load_customer(filename):
+    def load_customer(filename: str) -> Customer:
         return Customer.load(filename)
 
     @staticmethod
-    def get_customer():
+    def get_customer() -> Customer:
         new_customer = False
         customer_files = ConsoleInput.get_customer_files()
 
         if len(customer_files) == 0:
-            print("No customer records exist, please make a new one.\n")
+            print("No customer records exist, please make a new one.")
             new_customer = True
         else:
-            returning = input("Would you like to load an exisiting custome profile? [y,n]: ")
+            returning = input("Would you like to load an existing customer profile? [y,n]: ")
 
             if returning.strip().lower() in ["y", "yes"]:
                 customers = []
@@ -81,9 +82,9 @@ class ConsoleInput:
                     print(cur_customer)
 
                 while True:
-                    ind = input("\nType the index of the entry you'd like to select: ")
-                    if ind.isdigit():
-                        ind = int(ind)
+                    ind_str = input("\nType the index of the entry you'd like to select: ")
+                    if ind_str.isdigit():
+                        ind = int(ind_str)
                         if 0 < ind <= len(customer_files):
                             customer = customers[ind-1]
                             break
@@ -100,7 +101,7 @@ class ConsoleInput:
 
 
     @staticmethod
-    def get_valid_input(question:str, validation_function) -> str:
+    def get_valid_input(question: str, validation_function: Callable[[str], bool]) -> str:
         """
         Will get valid input from the user and return it.
 
@@ -115,21 +116,21 @@ class ConsoleInput:
         return inp
 
     @staticmethod
-    def validate_email(email:str) -> bool:
+    def validate_email(email: str) -> bool:
         """
         returns if the given email is valid
         """
         return email.count("@") == 1 and email.count(".") >= 1 and len(email) > 6
 
     @staticmethod
-    def validate_address(address:str) -> bool:
+    def validate_address(address: str) -> bool:
         """
         returns if an address is valid
         """
         return True
 
     @staticmethod
-    def validate_phone(phone:str) -> bool:
+    def validate_phone(phone: str) -> bool:
         """
         returns if the given phone number is valid
         """
@@ -137,7 +138,7 @@ class ConsoleInput:
         return phone.isdigit() and len(phone) == 10
 
     @staticmethod
-    def validate_name(name:str) -> bool:
+    def validate_name(name: str) -> bool:
         """
         a name is valid if it contains no spaces,
         no special chars and is longer than one character
@@ -150,7 +151,7 @@ class ConsoleInput:
         gets a valid credit card from the user via console
         """
         print("- PAYMENT INFORMATION -")
-        print("Please enter your credit card information. This information will NOT be saved.\n")
+        print("Please enter your credit card information. This information will NOT be saved.")
         card_number = input("Please type your CREDIT CARD NUMBER: ").strip()
         card_expiry= input("Please type the EXPIRY DATE (MM/YY): ").strip().replace("/","")
         cvv = input("Please type the 3 digit SECURITY CODE: ").strip()
@@ -159,7 +160,7 @@ class ConsoleInput:
         try:
             card = CreditCard(card_number, card_expiry, cvv, zip_code)
         except Exception as e:
-            print("Card details INVALID, please try again. \n", e)
+            print("Card details INVALID, please try again.", e)
             return ConsoleInput.get_credit_card()
 
         return card

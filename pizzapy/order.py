@@ -1,24 +1,21 @@
 import requests
-
+from typing import List, Dict, Any, Optional
 from .menu import Menu
 from .urls import Urls, COUNTRY_USA
+from .customer import Customer
+from .store import Store
+from .address import Address
+from .payment import CreditCard
 
 
-# TODO: Add add_coupon and remove_coupon methods
-class Order(object):
-    """Core interface to the payments API.
-
-    The Order is perhaps the second most complicated class - it wraps
-    up all the logic for actually placing the order, after we've
-    determined what we want from the Menu. 
-    """
-    def __init__(self, store, customer, country=COUNTRY_USA):
+class Order:
+    def __init__(self, store: Store, customer: Customer, country: str = COUNTRY_USA) -> None:
         self.store = store
         self.menu = Menu.from_store(store_id=store.id, country=country)
         self.customer = customer
         self.address = customer.address
         self.urls = Urls(country)
-        self.data = {
+        self.data: Dict[str, Any] = {
             'Address': {'Street': self.address.street,
                         'City': self.address.city,
                         'Region': self.address.region,
@@ -33,50 +30,43 @@ class Order(object):
             'Partners': {}, 'NewUser': True, 'metaData': {}, 'Amounts': {},
             'BusinessDate': '', 'EstimatedWaitMinutes': '',
             'PriceOrderTime': '', 'AmountsBreakdown': {}
-            }
+        }
 
     @staticmethod
-    def begin_customer_order(customer, store, country=COUNTRY_USA):
+    def begin_customer_order(customer: Customer, store: Store, country: str = COUNTRY_USA) -> 'Order':
         return Order(store, customer, country=country)
 
-    def __repr__(self):
-        return "An order for {} with {} items in it\n".format(
-            self.customer.first_name,
-            len(self.data['Products']) if self.data['Products'] else 'no',
-        )
+    def __repr__(self) -> str:
+        return f"An order for {self.customer.first_name} with {len(self.data['Products']) if self.data['Products'] else 'no'} items in it"
 
-    # TODO: Implement item options
-    # TODO: Add exception handling for KeyErrors
-    def add_item(self, code, qty=1, options=[]):
+    def add_item(self, code: str, qty: int = 1, options: List[str] = []) -> Dict[str, Any]:
         item = self.menu.variants[code]
         item.update(ID=1, isNew=True, Qty=qty, AutoRemove=False)
+        print('appending', item)
         self.data['Products'].append(item)
         return item
 
-    # TODO: Raise Exception when index isn't found
-    def remove_item(self, code):
+    def remove_item(self, code: str) -> Dict[str, Any]:
         codes = [x['Code'] for x in self.data['Products']]
         return self.data['Products'].pop(codes.index(code))
 
-    def add_coupon(self, code, qty=1):
+    def add_coupon(self, code: str, qty: int = 1) -> Dict[str, Any]:
         item = self.menu.variants[code]
         item.update(ID=1, isNew=True, Qty=qty, AutoRemove=False)
         self.data['Coupons'].append(item)
         return item
 
-    def remove_coupon(self, code):
+    def remove_coupon(self, code: str) -> Dict[str, Any]:
         codes = [x['Code'] for x in self.data['Coupons']]
         return self.data['Coupons'].pop(codes.index(code))
 
-    def changeToCarryout(self):
+    def changeToCarryout(self) -> None:
         self.data['ServiceMethod'] = 'Carryout'
-        return
 
-    def changeToDelivery(self):
+    def changeToDelivery(self) -> None:
         self.data['ServiceMethod'] = 'Delivery'
-        return
 
-    def _send(self, url, merge):
+    def _send(self, url: str, merge: bool) -> Dict[str, Any]:
         self.data.update(
             StoreID=self.store.id,
             Email=self.customer.email,
@@ -87,7 +77,7 @@ class Order(object):
 
         for key in ('Products', 'StoreID', 'Address'):
             if key not in self.data or not self.data[key]:
-                raise Exception('order has invalid value for key "%s"' % key)
+                raise Exception(f'order has invalid value for key "{key}"')
 
         headers = {
             'Referer': 'https://order.dominos.com/en/pages/order/',
@@ -102,29 +92,24 @@ class Order(object):
             for key, value in json_data['Order'].items():
                 if value or not isinstance(value, list):
                     self.data[key] = value
-        return json_data
+        return json_data #type: ignore
 
-    # TODO: Figure out if this validates anything that self.urls.price_url() does not
-    def validate(self):
+    def validate(self) -> bool:
         response = self._send(self.urls.validate_url(), True)
-        return response['Status'] != -1
+        return bool(response['Status'] != -1)
 
-    # TODO: Actually test this
-    def place(self, card=False):
+    def place(self, card: Optional[CreditCard]) -> Dict[str, Any]:
         self.pay_with(card)
         response = self._send(self.urls.place_url(), False)
         return response
 
-    # TODO: Add self.price() and update whenever called and items were changed
-    def pay_with(self, card=False):
-        """Use this instead of self.place when testing"""
-        # get the price to check that everything worked okay
+    def pay_with(self, card: Optional[CreditCard]) -> Dict[str, Any]:
         response = self._send(self.urls.price_url(), True)
-        
-        if response['Status'] == -1:
-            raise Exception('get price failed: %r' % response)
 
-        if card == False:
+        if response['Status'] == -1:
+            raise Exception(f'get price failed: {response}')
+
+        if not card:
             self.data['Payments'] = [
                 {
                     'Type': 'Cash',

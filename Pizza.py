@@ -53,7 +53,8 @@ while True:
 total = 0
 print("\nYour order is as follows: ")
 for item in order.data["Products"]:
-    price = item["price"]
+    print('Item:', item)
+    price = item["Price"]
     print(item["Name"] + " $" + item["Price"])
     total += float(price)
 

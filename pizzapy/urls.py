@@ -9,9 +9,9 @@ class Urls(object):
     This initializes some dicts that contain country-unique information
     on how to interact with the API, and some getter methods for getting
     to that information. These are handy to pass as a first argument to
-    pizzapy.utils.request_[xml|json]. 
+    pizzapy.utils.request_[xml|json].
     """
-    def __init__(self, country=COUNTRY_USA):
+    def __init__(self, country: str=COUNTRY_USA) -> None:
 
         self.country = country
         self.urls = {
@@ -38,33 +38,33 @@ class Urls(object):
                 'coupon_url' : 'https://order.dominos.ca/power/store/{store_id}/coupon/{couponid}?lang={lang}',
             }
         }
-    
-    def find_url(self):
+
+    def find_url(self) -> str:
         return self.urls[self.country]['find_url']
-    
-    def info_url(self):
+
+    def info_url(self) -> str:
         return self.urls[self.country]['info_url']
 
-    def menu_url(self):
+    def menu_url(self) -> str:
         return self.urls[self.country]['menu_url']
 
-    def place_url(self):
+    def place_url(self) -> str:
         return self.urls[self.country]['place_url']
 
-    def price_url(self):
+    def price_url(self) -> str:
         return self.urls[self.country]['price_url']
 
-    def track_by_order(self):
+    def track_by_order(self) -> str:
         return self.urls[self.country]['track_by_order']
 
-    def track_by_phone(self):
+    def track_by_phone(self) -> str:
         return self.urls[self.country]['track_by_phone']
-    
-    def validate_url(self):
+
+    def validate_url(self) -> str:
         return self.urls[self.country]['validate_url']
-    
-    def coupon_url(self):
+
+    def coupon_url(self) -> str:
         return self.urls[self.country]['coupon_url']
-    
-    
+
+
 

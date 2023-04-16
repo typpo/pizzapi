@@ -1,49 +1,52 @@
+from typing import Any, Dict, List, Optional
+
 from .menu import Menu
 from .urls import Urls, COUNTRY_USA
 from .utils import request_json
 
 
-
-class Store(object):
+class Store:
     """The interface to the Store API
 
     You can use this to find store information about stores near an
-    address, or to find the closest store to an address. 
+    address, or to find the closest store to an address.
     """
-    def __init__(self, data={}, country=COUNTRY_USA):
-        self.id = str(data.get('StoreID', -1))
-        self.country = country
-        self.urls = Urls(country)
-        self.data = data
 
-    def __repr__(self):
-        return "Store #{}\nAddress: {}\nOpen Now: {}".format(
+    def __init__(self, data: Optional[Dict[str, Any]] = None, country: str = COUNTRY_USA) -> None:
+        data = data or {}
+        self.id: str = str(data.get('StoreID', -1))
+        self.country: str = country
+        self.urls: Urls = Urls(country)
+        self.data: Dict[str, Any] = data
+
+    def __repr__(self) -> str:
+        return "Store #{}\nAddress:{}\nOpen Now: {}".format(
             self.id,
             self.data['AddressDescription'],
             'Yes' if self.data.get('IsOpen', False) else 'No',
         )
 
-    def get_details(self):
+    def get_details(self) -> Dict[str, Any]:
         details = request_json(self.urls.info_url(), store_id=self.id)
         return details
-    
-    def place_order(self, order, card):
+
+    def place_order(self, order: Any, card: Any) -> Any:
         print('Order placed for {}'.format(order.customer.first_name))
         return order.place(card=card)
 
-    def get_menu(self, lang='en'):
+    def get_menu(self, lang: str = 'en') -> Menu:
         response = request_json(self.urls.menu_url(), store_id=self.id, lang=lang)
         menu = Menu(response, self.country)
         return menu
 
 
-class StoreLocator(object):
+class StoreLocator:
     @classmethod
-    def __repr__(self):
+    def __repr__(cls) -> str:
         return 'I locate stores and nothing else'
 
     @staticmethod
-    def nearby_stores(address, service='Delivery'):
+    def nearby_stores(address: Any, service: str = 'Delivery') -> List[Store]:
         """Query the API to find nearby stores.
 
         nearby_stores will filter the information we receive from the API
@@ -55,14 +58,14 @@ class StoreLocator(object):
                 if x['IsOnlineNow'] and x['ServiceIsOpen'][service]]
 
     @staticmethod
-    def find_closest_store_to_customer(customer, service='Delivery'):
+    def find_closest_store_to_customer(customer: Any, service: str = 'Delivery') -> Store:
         stores = StoreLocator.nearby_stores(customer.address, service=service)
         if not stores:
             raise Exception('No local stores are currently open')
         return stores[0]
 
     @staticmethod
-    def find_k_closest_stores_to_customer(customer, k, service="Delivery"):
+    def find_k_closest_stores_to_customer(customer: Any, k: int, service: str = "Delivery") -> List[Store]:
         stores = StoreLocator.nearby_stores(customer.address, service=service)
         if not stores:
             raise Exception('No local stores are currently open')

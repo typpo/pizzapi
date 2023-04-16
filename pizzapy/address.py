@@ -1,48 +1,49 @@
+from typing import List, Union, Dict
 from .store import Store
 from .utils import request_json
 from .urls import Urls, COUNTRY_USA
 
-class Address(object):
+class Address:
     """Create an address, for finding stores and placing orders.
 
     The Address object describes a street address in North America (USA or
     Canada, for now). Callers can use the Address object's methods to find
-    the closest or nearby stores from the API. 
+    the closest or nearby stores from the API.
 
     Attributes:
-        street (String): Street address
-        city (String): North American city
-        region (String): North American region (state, province, territory)
-        zip (String): North American ZIP code
-        urls (String): Country-specific URLs
-        country (String): Country
+        street (str): Street address
+        city (str): North American city
+        region (str): North American region (state, province, territory)
+        zip (str): North American ZIP code
+        urls (Urls): Country-specific URLs
+        country (str): Country
     """
 
-    def __init__(self, street, city, region='', zip='', country=COUNTRY_USA, *args):
-        self.street = street.strip()
-        self.city = city.strip()
-        self.region = region.strip()
-        self.zip = str(zip).strip()
-        self.urls = Urls(country)
-        self.country = country
+    def __init__(self, street: str, city: str, region: str = '', zip: Union[str, int] = '', country: str = COUNTRY_USA) -> None:
+        self.street: str = street.strip()
+        self.city: str = city.strip()
+        self.region: str = region.strip()
+        self.zip: str = str(zip).strip()
+        self.urls: Urls = Urls(country)
+        self.country: str = country
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return ", ".join([self.street, self.city, self.region, self.zip])
- 
+
     @property
-    def data(self):
+    def data(self) -> Dict[str, str]:
         return {'Street': self.street, 'City': self.city,
                 'Region': self.region, 'PostalCode': self.zip}
 
     @property
-    def line1(self):
+    def line1(self) -> str:
         return '{Street}'.format(**self.data)
 
     @property
-    def line2(self):
+    def line2(self) -> str:
         return '{City}, {Region}, {PostalCode}'.format(**self.data)
 
-    def nearby_stores(self, service='Delivery'):
+    def nearby_stores(self, service: str = 'Delivery') -> List[Store]:
         """Query the API to find nearby stores.
 
         nearby_stores will filter the information we receive from the API
@@ -56,7 +57,7 @@ class Address(object):
             [Store(x, self.country) for x in data['Stores']
              if x['IsOnlineNow'] and x['ServiceIsOpen'][service]]
 
-    def closest_store(self, service='Delivery'):
+    def closest_store(self, service: str = 'Delivery') -> Store:
         stores = self.nearby_stores(service=service)
         if not stores:
             raise Exception('No local stores are currently open')
