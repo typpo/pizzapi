@@ -13,14 +13,19 @@ class Customer:
         last_name: str = '',
         email: str = '',
         phone: str = '',
-        address: Optional[str] = None,
+        address: Optional[Address] = None,
     ) -> None:
         self.first_name = first_name.strip()
         self.last_name = last_name.strip()
         self.email = email.strip()
         self.phone = str(phone).strip()
         self.str_address = address
-        self.address = Address(*address.split(',')) if address else None
+        if isinstance(address, Address):
+            self.address = address
+        elif isinstance(address, str):
+            self.address = Address(*address.split(','))
+        else:
+            self.address = None
 
     def save(self, filename: str = "customers/customer1.json") -> None:
         """

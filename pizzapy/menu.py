@@ -103,20 +103,17 @@ class Menu:
         print_category(self.root_categories['Food'])
 
 
-    def search(self, **conditions: str) -> None:
+    def search(self, name: str) -> None:
         for variant in self.variants.values():
             default_toppings = variant['Tags']['DefaultToppings'].split(',')
             variant['Toppings'] = {
                 x.split('=', 1)[0]: x.split('=', 1)[1] for x in default_toppings if x
             }
 
-            is_match = True
-            for key, value in conditions.items():
-                if key not in variant or str(variant[key]) != value:
-                    is_match = False
-                    break
-
+            is_match = variant['Name'].find(name) != -1
             if is_match:
-                print(variant['Code'], end=' ')
-                print(variant['Name'], end=' ')
-                print(variant['Price'], end=' ')
+                print(f"{variant['Name']}\t{variant['Code']}\t{variant['Price']}")
+
+
+    def get_item_count(self) -> int:
+        return len(self.menu_by_code)

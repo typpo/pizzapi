@@ -1,14 +1,17 @@
-from pizzapy import Customer, StoreLocator, Order, ConsoleInput
+from pizzapy import Customer, StoreLocator, Order, ConsoleInput, Address
 
 
 def searchMenu(menu):
     print("You are now searching the menu...")
+    print(f'Number of items: {menu.get_item_count()}')
+    menu.display()
+
     item = input("Type an item to look for: ").strip().lower()
 
     if len(item) > 0:
         item = item[0].upper() + item[1:]
         print(f"Results for: {item}\n")
-        menu.search(Name=item)
+        menu.search(name=item)
         print()
     else:
         print("No Results")
@@ -27,16 +30,18 @@ def addToOrder(order):
             print("Invalid Code...")
 
 
-customer = ConsoleInput.get_new_customer()
+#customer = ConsoleInput.get_new_customer()
+address = Address('444 de haro st', 'San Francisco', 'CA', '94107')
+customer = Customer('Ian', 'Web', 'web@example.com', '123-456-7890', address)
 
 my_local_dominos = StoreLocator.find_closest_store_to_customer(customer)
 print("\nClosest Store:")
 print(my_local_dominos)
 
-ans = input("Would you like to order from this store? [Y/N]")
-if ans.lower() not in ["yes", "y"]:
-    print("Goodbye!")
-    quit()
+#ans = input("Would you like to order from this store? [y/N]")
+#if ans.lower() not in ["yes", "y"]:
+#    print("Goodbye!")
+#    quit()
 
 print("\nMENU\n")
 
